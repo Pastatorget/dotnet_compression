@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeflateAttribute.cs" />
+    <Compile Include="GzipAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\CompressionHelper.cs" />
   </ItemGroup>
