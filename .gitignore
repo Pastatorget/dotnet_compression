@@ -19,6 +19,9 @@ build/
 [Bb]in/
 [Oo]bj/
 
+# Ignore included packages
+[Pp]ackages/
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
