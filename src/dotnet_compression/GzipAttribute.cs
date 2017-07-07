@@ -23,33 +23,33 @@ namespace dotnet_compression
                 {
                     content = CompressionHelper.GzipBytes(bytes, this.CompressionLevel);
                 }
-            }
 
-            context.Response.Content = new ByteArrayContent(content);
+                context.Response.Content = new ByteArrayContent(content);
 
-            if (this.Headers.Count > 0)
-            {
-                // Removes all header key values matching in this.Headers
-                foreach (var header in this.Headers)
+                if (this.Headers.Count > 0)
                 {
-                    if (context.Response.Content.Headers.Contains(header.Key))
+                    // Removes all header key values matching in this.Headers
+                    foreach (var header in this.Headers)
                     {
-                        // Removes header based on key
-                        context.Response.Content.Headers.Remove(header.Key);
+                        if (context.Response.Content.Headers.Contains(header.Key))
+                        {
+                            // Removes header based on key
+                            context.Response.Content.Headers.Remove(header.Key);
 
-                        // Add updated header key and value
-                        context.Response.Content.Headers.Add(header.Key, header.Value);
+                            // Add updated header key and value
+                            context.Response.Content.Headers.Add(header.Key, header.Value);
+                        }
                     }
                 }
-            }
-            else
-            {
-                context.Response.Content.Headers.Remove("Content-Type");
-                context.Response.Content.Headers.Add("Content-Type", "application/json");
-            }
+                else
+                {
+                    context.Response.Content.Headers.Remove("Content-Type");
+                    context.Response.Content.Headers.Add("Content-Type", "application/json");
+                }
 
-            // For now we're forcing Content-encoding to gzip, since that's the compression method used
-            context.Response.Content.Headers.Add("Content-encoding", "gzip");
+                // For now we're forcing Content-encoding to gzip, since that's the compression method used
+                context.Response.Content.Headers.Add("Content-encoding", "gzip");
+            }
 
             base.OnActionExecuted(context);
         }
