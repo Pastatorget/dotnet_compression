@@ -1,4 +1,5 @@
 ﻿using dotnet_compression.Resources;
+using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Net.Http;
@@ -9,6 +10,7 @@ namespace dotnet_compression
     public class DeflateAttribute : ActionFilterAttribute
     {
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Fastest;
+        public Int64 ByteThreshold { get; set; } = 5000;
         public Dictionary<string, string> Headers { get; set; }
 
         public override void OnActionExecuted(HttpActionExecutedContext context)
@@ -19,36 +21,39 @@ namespace dotnet_compression
             {
                 var bytes = context.Response.Content.ReadAsByteArrayAsync().Result;
 
-                if (bytes != null)
+                if (bytes.Length < this.ByteThreshold)
                 {
-                    content = CompressionHelper.DeflateBytes(bytes, this.CompressionLevel);
-                }
-
-                context.Response.Content = new ByteArrayContent(content);
-
-                if (this.Headers.Count > 0)
-                {
-                    // Removes all header key values matching in this.Headers
-                    foreach (var header in this.Headers)
+                    if (bytes != null)
                     {
-                        if (context.Response.Content.Headers.Contains(header.Key))
-                        {
-                            // Removes header based on key
-                            context.Response.Content.Headers.Remove(header.Key);
+                        content = CompressionHelper.DeflateBytes(bytes, this.CompressionLevel);
+                    }
 
-                            // Add updated header key and value
-                            context.Response.Content.Headers.Add(header.Key, header.Value);
+                    context.Response.Content = new ByteArrayContent(content);
+
+                    if (this.Headers.Count > 0)
+                    {
+                        // Removes all header key values matching in this.Headers
+                        foreach (var header in this.Headers)
+                        {
+                            if (context.Response.Content.Headers.Contains(header.Key))
+                            {
+                                // Removes header based on key
+                                context.Response.Content.Headers.Remove(header.Key);
+
+                                // Add updated header key and value
+                                context.Response.Content.Headers.Add(header.Key, header.Value);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    context.Response.Content.Headers.Remove("Content-Type");
-                    context.Response.Content.Headers.Add("Content-Type", "application/json");
-                }
+                    else
+                    {
+                        context.Response.Content.Headers.Remove("Content-Type");
+                        context.Response.Content.Headers.Add("Content-Type", "application/json");
+                    }
 
-                // For now we're forcing Content-encoding to deflate, since that's the compression method used
-                context.Response.Content.Headers.Add("Content-encoding", "deflate");
+                    // For now we're forcing Content-encoding to deflate, since that's the compression method used
+                    context.Response.Content.Headers.Add("Content-encoding", "deflate");
+                }
             }
 
             base.OnActionExecuted(context);
