@@ -9,8 +9,22 @@ namespace dotnet_compression
 {
     public class GzipAttribute : ActionFilterAttribute
     {
+        /// <summary>
+        /// Let's you control the compression level of the body response to the client.
+        /// Will default to fastest if not given.
+        /// </summary>
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.Fastest;
+
+        /// <summary>
+        /// To avoid perfomance issues, compression won't be triggered
+        /// if the response is below 5kb by default. You can change this to
+        /// any positive value you want
+        /// </summary>
         public Int64 ByteThreshold { get; set; } = 5000;
+
+        /// <summary>
+        /// Adds support for define custom return head attributes to client
+        /// </summary>
         public Dictionary<string, string> Headers { get; set; }
 
         public override void OnActionExecuted(HttpActionExecutedContext context)
